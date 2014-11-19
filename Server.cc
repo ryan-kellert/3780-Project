@@ -101,6 +101,48 @@ int main()
 				     (struct sockaddr *)&client_address,
 				     &client_length);
       
+
+
+ while (1) {
+         newsockfd = recvfrom(sockfd, 
+               (struct sockaddr *) &client_address, &clientlength);
+         if (newsockfd < 0) 
+             error("ERROR on accept");
+         pid = fork();
+         if (pid < 0)
+             error("ERROR on fork");
+         if (pid == 0)  {
+             close(sockfd);
+             dostuff(newsockfd);
+             exit(0);
+         }
+         else close(newsockfd);
+     } /* end of while */
+     return 0; /* we never get here */
+}
+
+   //end of fork code
+
+/******** DOSTUFF() *********************
+ There is a separate instance of this function 
+ for each connection.  It handles all communication
+ once a connnection has been established.
+ *****************************************/
+void dostuff (int sock)
+{
+   int n;
+   char buffer[256];
+      
+   bzero(buffer,256);
+   n = recv(sock,buffer,255); // sock initialized above. 
+   if (n < 0) error("ERROR reading from socket");
+   printf("Here is the message: %s\n",buffer);
+   n = write(sock,"I got your message",18); //send() apparently works here too.
+   if (n < 0) error("ERROR writing to socket");
+}
+
+//end of doStuff function
+
       if(receive_error_check < 0)
       {
 	 cerr<<"Failed to receive."<< buffer <<  endl;
