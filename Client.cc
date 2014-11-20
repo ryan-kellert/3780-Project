@@ -13,6 +13,8 @@
 #include <unistd.h>
 #include <string.h>
 #include <cstring>
+#include "Packet.h"
+
 using namespace std;
 
 int main()
@@ -72,17 +74,18 @@ int main()
         // cin>> setw(255)>> buffer;
 
         //only sending buffer to the first space of the message.
-        fgets(buffer, 255, stdin);
+	std::string message;
+        cin >> message;
 
 
         // We put server address in both because there will only be client to
         // server communication.
         Packet packet_to_send;
         packet_to_send.Seq_No = '1';
-        packet_to_send.Destination = "142.66.140.80";
-        packet_to_send.Type = 'G';
-        packet_to_send.Payload = "TESTING";
-        packet_to_send.Source = "142.66.140.81";
+        packet_to_send.Destination = "142066140080";
+        packet_to_send.Type = 'S';
+        packet_to_send.Payload = message;
+        packet_to_send.Source = "142066140098";
         std::string send_string = packet_to_send.Seq_No + packet_to_send.Type + packet_to_send.Source + packet_to_send.Destination + packet_to_send.Payload;
 
         for(unsigned i = 0; i < send_string.size(); i++)
@@ -102,11 +105,16 @@ int main()
                                         &server_length);
 
         if (receive_error_check<0)
+	{
             cerr<< "Error receiving."<<endl;
         // Only for testing, remove once complete.
         cout<<"The following message was received: "<<endl;
-        for(int i=0; i< 256; i++)
+	for (unsigned i = 26; i < MAX_BUFFER_SIZE; i++)
+	{
             cout<<buffer[i];
+	}
+	cout << endl;
+	}
         // Upon receiving message from the server. Send another message with
         // acknowledgement.
     }
