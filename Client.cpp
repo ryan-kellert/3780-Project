@@ -14,6 +14,7 @@
 #include <string.h>
 #include <cstring>
 #include <vector>
+#include <limits>
 #include "Packet.h"
 
 using namespace std;
@@ -91,6 +92,7 @@ int main(int argc, char *argv[])
             std::string message;
             std::string client_name;
             std::cout << "\n\nEnter a message: ";
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
             std::getline(std::cin, message);
             std::cout << "\nWho do you want to send to? ";
             std::cin >> client_name;
