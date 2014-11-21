@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
             std::string message;
             std::string client_name;
             std::cout << "\n\nEnter a message: ";
-            std::cin >> message;
+            std::getline(std::cin, message);
             std::cout << "\nWho do you want to send to? ";
             std::cin >> client_name;
             Packet packet_to_send(++seq_num, 'S', argv[2], client_name, message);
@@ -107,14 +107,14 @@ int main(int argc, char *argv[])
             }
             else
             {
-                cout<<"Message was sent..."<<endl;
+                cout << "Message was sent..." << endl;
                 message_storage.push_back(packet_to_send);
             }
         }
         break;
         case 'G':
         {
-            Packet packet_to_send(++seq_num, 'G', argv[2], "", "");
+            Packet packet_to_send(++seq_num, 'G', argv[2], "     ", " ");
             strcpy(buffer, packet_to_send.GetPacketString());
 
             //Send packet
