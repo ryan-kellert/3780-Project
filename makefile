@@ -1,15 +1,25 @@
+OBJS = Server.o Packet.o
+OBJS2= Client.o Packet.o
 CC = g++11
-CC_FLAGS = -Wall -fexceptions -g -std=c++11
+CFLAGS= -Wall -g -std=c++11
 
-EXEC = Assignment1
-SOURCES = $(wildcard *.cpp)
-OBJECTS = $(SOURCES:.cpp=.o)
+all: Server Client
 
-$(EXEC): $(OBJECTS)
-	$(CC) $(OBJECTS) -o $(EXEC)
-
+# $@ reps the target of the rule
+Server: $(OBJS)  
+	$(CC) $(CFLAGS) $(OBJS) -o $@
+Client: $(OBJS2)  
+	$(CC) $(CFLAGS) $(OBJS2) -o $@
+# $< reps the name of the 1st dependency of our rule.
+# $^ if used would rep the dependcy list of the rule.
 %.o: %.cpp
-	$(CC) -c $(CC_FLAGS) $< -o $@
+	$(CC) $(CFLAGS) -c $< 
+
+#Removal of files that have been built
 
 clean:
-	rm -f $(EXEC) $(OBJECTS)
+	rm -f *.o *~
+
+clean-all: clean
+	rm -f Server
+	rm -f Client
