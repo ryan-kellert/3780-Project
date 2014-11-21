@@ -113,8 +113,44 @@ int main(int argc, char *argv[])
             break;
         }
         case 'G':
-            //GetMessages();
+        {
+            Packet packet_to_send(++seq_num, 'G', argv[2], "", "");
+            strcpy(buffer, packet_to_send.GetPacketString());
+
+            //Send packet
+            send_error_check= sendto( socket_descriptor, buffer, MAX_BUFFER_SIZE, 0,
+                                      (struct sockaddr *)&server_address,
+                                      server_length);
+
+            if (send_error_check < 0)
+            {
+                cerr << "Error sending request." << endl;
+            }
+            else
+            {
+                Packet* current_packet;
+                cout << "Get in Progress" << endl;
+                do
+                {
+                    receive_error_check = recvfrom( socket_descriptor, buffer, 256, 0,
+                                                    (struct sockaddr *)&server_address,
+                                                    &server_length);
+
+                    if (receive_error_check < 0)
+                    {
+                        cerr<< "Error receiving."<<endl;
+                    }
+                    else
+                    {
+                        cout<<"The following message was received: "<<endl;
+                        Packet packet_received(buffer);
+                        cout << packet_received.GetMessage();
+                        current_packet = &packet_received;
+                    }
+                }while(current_packet->GetMessageType() != 'D');
+            }
             break;
+        }
         }
 
 
