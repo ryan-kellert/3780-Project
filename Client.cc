@@ -17,20 +17,20 @@
 
 using namespace std;
 
-int main()
+unsigned seq_num = 0;
+vector<Packet> message_storage;
+
+int main(int argc, char *argv[])
 {
-    char buffer[MAX_BUFFER_SIZE + 1];
 
-    struct Packet
+    if (argc != 3)
     {
-        string Seq_No; // 1 char
-        string Type; // 1 char
-        string Source; // 12
-        string Destination; // 12
-        string Payload;
-    };
+        printf("Server address and/or client name not given.\n");
+        exit(1);
+    }
 
-    // Messages > Buffer.size() will produce an error message
+
+    char buffer[MAX_BUFFER_SIZE + 1];
 
     int socket_descriptor;
     socket_descriptor= socket(AF_INET, SOCK_DGRAM, 0);
@@ -43,12 +43,12 @@ int main()
     int port_number=3500;
     unsigned int server_length= sizeof(struct sockaddr_in);
     struct sockaddr_in server_address;
-    struct hostent *host_ptr;
-    host_ptr= gethostbyname("142.66.140.80"); //IP changes with machine.
+
+    host_ptr= gethostbyname(argv[1]); //IP changes with machine.
     if(host_ptr==0)
     {
         cerr<< "Wrong server address"<<endl;
-        return 0;
+        exit(1);
     }
     server_address.sin_family = AF_INET;
     server_address.sin_port = htons(port_number);
@@ -67,56 +67,84 @@ int main()
     while(1)
     {
         // user inputs their message, the buffer sets to 000000
-        cout<< "Enter a message: "<< endl;
         bzero(buffer, 256);
         //could use fgets(buffer, 255, stdin). 255 + null terminator
         // setw limits the users input to 255 characters MAX.
         // cin>> setw(255)>> buffer;
 
         //only sending buffer to the first space of the message.
-	std::string message;
-        cin >> message;
+        char action;
+
+        cout << "Awesome Networking program:\n\n\n"
+             << "S: Send a message.\n"
+             << "G: Retrieve messages from the server.\n"
+             << "Q: Quit the program.\n"
+             << "\nChoose an action: ";
+
+        cin >> action;
+        switch (toupper(action))
+        {
+        case 'S':
+            std::string message;
+            std::string client_name;
+            std::cout << "\n\nEnter a message: ";
+            std::cin >> message;
+            std::cout << "\nWho do you want to send to? "
+            std::cin >> client_name;
+            Packet packet_to_send(++seq_num, 'S', argv[2], client_name, message);
+            strcpy(buffer, packet_to_send->GetPacketString());
+
+            //Send packet
+            send_error_check= sendto( socket_descriptor, buffer, MAX_BUFFER_SIZE, 0,
+                                  (struct sockaddr *)&server_address,
+                                  server_length);
+            if (send_error_check < 0)
+            {
+                cerr << "Error sending." << endl;
+            }
+            else
+            {
+                cout<<"Message was sent..."<<endl;
+                message_storage.push_back() packet_to_send;
+            }
+            break;
+        case 'G':
+            //GetMessages();
+            break;
+        }
+
 
 
         // We put server address in both because there will only be client to
         // server communication.
-        Packet packet_to_send;
-        packet_to_send.Seq_No = '1';
-        packet_to_send.Destination = "142066140080";
-        packet_to_send.Type = 'S';
-        packet_to_send.Payload = message;
-        packet_to_send.Source = "142066140098";
-        std::string send_string = packet_to_send.Seq_No + packet_to_send.Type + packet_to_send.Source + packet_to_send.Destination + packet_to_send.Payload;
+        /*Packet packet_to_send(++seq_num, )
 
         for(unsigned i = 0; i < send_string.size(); i++)
         {
             buffer[i] = send_string[i];
         }
-        send_error_check= sendto( socket_descriptor, buffer, MAX_BUFFER_SIZE, 0,
-                                  (struct sockaddr *)&server_address,
-                                  server_length);
-        if (send_error_check<0)
-            cerr<< "Error sending."<<endl;
+
+
         // Only for testing, remove once complete.
-        cout<<"Message was sent..."<<endl;
+
 
         receive_error_check = recvfrom( socket_descriptor, buffer, 256, 0,
                                         (struct sockaddr *)&server_address,
                                         &server_length);
 
         if (receive_error_check<0)
-	{
+        {
             cerr<< "Error receiving."<<endl;
-        // Only for testing, remove once complete.
-        cout<<"The following message was received: "<<endl;
-	for (unsigned i = 26; i < MAX_BUFFER_SIZE; i++)
-	{
-            cout<<buffer[i];
-	}
-	cout << endl;
-	}
+            // Only for testing, remove once complete.
+            cout<<"The following message was received: "<<endl;
+            for (unsigned i = 26; i < MAX_BUFFER_SIZE; i++)
+            {
+                cout<<buffer[i];
+            }
+            cout << endl;
+        }
         // Upon receiving message from the server. Send another message with
-        // acknowledgement.
+        // acknowledgement.*/
     }
 
     close(socket_descriptor);
