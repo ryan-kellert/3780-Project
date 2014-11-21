@@ -13,6 +13,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <cstring>
+#include <vector>
 #include "Packet.h"
 
 using namespace std;
@@ -43,6 +44,7 @@ int main(int argc, char *argv[])
     int port_number=3500;
     unsigned int server_length= sizeof(struct sockaddr_in);
     struct sockaddr_in server_address;
+    struct hostent *host_ptr;
 
     host_ptr= gethostbyname(argv[1]); //IP changes with machine.
     if(host_ptr==0)
@@ -85,19 +87,20 @@ int main(int argc, char *argv[])
         switch (toupper(action))
         {
         case 'S':
+        {
             std::string message;
             std::string client_name;
             std::cout << "\n\nEnter a message: ";
             std::cin >> message;
-            std::cout << "\nWho do you want to send to? "
+            std::cout << "\nWho do you want to send to? ";
             std::cin >> client_name;
             Packet packet_to_send(++seq_num, 'S', argv[2], client_name, message);
-            strcpy(buffer, packet_to_send->GetPacketString());
+            strcpy(buffer, packet_to_send.GetPacketString());
 
             //Send packet
             send_error_check= sendto( socket_descriptor, buffer, MAX_BUFFER_SIZE, 0,
-                                  (struct sockaddr *)&server_address,
-                                  server_length);
+                                      (struct sockaddr *)&server_address,
+                                      server_length);
             if (send_error_check < 0)
             {
                 cerr << "Error sending." << endl;
@@ -105,9 +108,10 @@ int main(int argc, char *argv[])
             else
             {
                 cout<<"Message was sent..."<<endl;
-                message_storage.push_back() packet_to_send;
+                message_storage.push_back(packet_to_send);
             }
             break;
+        }
         case 'G':
             //GetMessages();
             break;
