@@ -8,23 +8,15 @@
 #include <netdb.h>
 #include <stdio.h>
 #include <vector>
+#include "Packet.h"
 using namespace std;
 
+
 #define MAX_BUFFER_SIZE 255
-struct Packet
-{
-      string Seq_No; // 1 char
-      string Type; // 1 char
-      string Source; // 12
-      string Destination; // 12  
-      string Payload;
-};
+
 
 int main()
 {
-
-   Packet packet;
-  
 
    // We will store our messages here.
    vector<Packet> Message_Storage;
@@ -46,7 +38,7 @@ int main()
    {
      //printf("Error opening the socket.");
       cerr<< "Error creating the socket."<<endl;
-      return -1;
+      exit(1);
    }
    
    // Socket Address struct. 
@@ -71,7 +63,7 @@ int main()
    if (bindCheck<0)
    {
       cerr<<"Binding error."<<endl;
-      return -1;
+      exit(1);
    }
 
    // Checks to see if recvfrom returns error -1.
@@ -100,140 +92,62 @@ int main()
       receive_error_check= recvfrom( socket_descriptor,buffer,MAX_BUFFER_SIZE, 0,
 				     (struct sockaddr *)&client_address,
 				     &client_length);
-      
-
-
- while (1) {
-         newsockfd = recvfrom(sockfd, 
-               (struct sockaddr *) &client_address, &clientlength);
-         if (newsockfd < 0) 
-             error("ERROR on accept");
-         pid = fork();
-         if (pid < 0)
-             error("ERROR on fork");
-         if (pid == 0)  {
-             close(sockfd);
-             dostuff(newsockfd);
-             exit(0);
-         }
-         else close(newsockfd);
-     } /* end of while */
-     return 0; /* we never get here */
-}
-
-   //end of fork code
-
-/******** DOSTUFF() *********************
- There is a separate instance of this function 
- for each connection.  It handles all communication
- once a connnection has been established.
- *****************************************/
-void dostuff (int sock)
-{
-   int n;
-   char buffer[256];
-      
-   bzero(buffer,256);
-   n = recv(sock,buffer,255); // sock initialized above. 
-   if (n < 0) error("ERROR reading from socket");
-   printf("Here is the message: %s\n",buffer);
-   n = write(sock,"I got your message",18); //send() apparently works here too.
-   if (n < 0) error("ERROR writing to socket");
-}
-
-//end of doStuff function
-
       if(receive_error_check < 0)
       {
 	 cerr<<"Failed to receive."<< buffer <<  endl;
       }
-      int s=0;
-      int d=0;
-      int p=0;
-      	 
-      packet.Seq_No = buffer[0] - '0';
-      packet.Type = buffer[1];
-      for(int i=2; i<= MAX_BUFFER_SIZE; i++)
-      {
 
-	 if(i>=2 && i<14)
-	 {
-	    packet.Source[s]=buffer[i];
-	    s++;
-	 }
-	 if(i>14 && i<25)
-	 {
-	    packet.Destination[d]= buffer[i];
-	    d++;
-	 }
-	 else
-	 {
-	    packet.Payload[p]=buffer[i];
-	    p++;
-	 }
-      }
-	       
+      Packet packet_received(buffer);
+      packet_received.GetMessage();
+      cout<< packet_received.GetMessage()<<endl;
+         
       
       
-      //For testing purposes only, delete once complete. 
-      /* cout<< "I received the following message:" << endl;
-      for(int i=0; i< strlen(buffer); i++)
-      {
-	 cout<< buffer[i];
-      }
       
-      send_error_check= sendto( socket_descriptor, "Message Received \n",19, 0,
-				(struct sockaddr *)&client_address,
-				client_length);
+    
       
-      */
-      
-      Message_Storage.push_back(packet);
-      switch ( buffer[1] )
+      Message_Storage.push_back(packet_received);
+      switch ( packet_received.GetMessageType() )
       {
 	 case 'G':
-	    for(unsigned int i=0; i< Message_Storage.size(); i++)
+	 {
+	    unsigned seq_no = 0;
+	    for(unsigned i=0; i<Message_Storage.size(); i++)
 	    {
-	       if( Message_Storage[i].Destination == packet.Source)  
+	       if( Message_Storage[i].GetDestinationName()==packet_received.GetSourceName())
 	       {
+		  send_error_check= sendto( socket_descriptor,
+					    Message_Storage[i].GetPacketString(),
+					    strlen(Message_Storage[i].GetPacketString()), 0,
+					    (struct sockaddr *)&client_address,
+					    client_length);
 		  
-		  int s=0;
-		  int d=0;
-		  int p=0;
 		  
-		  buffer[0]=packet.Seq_No[0];
-		  buffer[1]=packet.Type[0];
-		  for(int i=2; i<= MAX_BUFFER_SIZE; i++)
+		  if(send_error_check < 0)
 		  {
-		     
-		     if(i>=2 && i<14)
-		     {
-			buffer[i]=packet.Source[s];
-			s++;
-		     }
-		     if(i>14 && i<25)
-		     {
-			buffer[i]=packet.Destination[d];
-			 d++;
-		     }
-		     else
-		     {
-			buffer[i]=packet.Payload[p];
-			p++;
-		     }
+		     cerr<< "Problems sending."<< endl;
+		     break;
 		  }
-		  
-		  send_error_check= sendto( socket_descriptor, buffer, MAX_BUFFER_SIZE, 0,
-					     (struct sockaddr *)&client_address,
-					     client_length);
-		   if(send_error_check < 0)
-		   {
-		      cerr<< "Problems sending."<< endl;
-		   }
-		   //reset buffer; 
-		   break;
+		  seq_no++;
 	       }
+	       
 	    }
+	    Packet end_of_messages(seq_no, 'D', "", "", "All Messages Received.\n" );
+	    send_error_check= sendto( socket_descriptor,
+				      end_of_messages.GetPacketString(),
+				      strlen(end_of_messages.GetPacketString()), 0,
+				      (struct sockaddr *)&client_address,
+				      client_length);
+		  
+	    
+	    if(send_error_check < 0)
+	    {
+	       cerr<< "Problems sending."<< endl;
+	       break;
+	    }
+	    break;
+	 }
+	 
 	 case 'S':
 	    break;
 	    
@@ -259,19 +173,19 @@ void dostuff (int sock)
       // contains the clients IP address and port. This destination
       // address is determined from the recvfrom() function prior. 
       // \param client_length: is the size of the previous parameter. 
-       send_error_check= sendto( socket_descriptor, buffer,strlen(buffer), 0,
-				(struct sockaddr *)&client_address,
-				 client_length);
-       if(send_error_check < 0)
-       {
-	  cerr<< "Problems sending."<< endl;
-       }
+      // send_error_check= sendto( socket_descriptor, buffer,strlen(buffer), 0,
+      //			(struct sockaddr *)&client_address,
+      //			 client_length);
+      // if(send_error_check < 0)
+      // {
+//	  cerr<< "Problems sending."<< endl;
+      //      }
        
 
-
+   }
      
    
-   }
+   
 
       
       

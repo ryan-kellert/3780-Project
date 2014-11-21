@@ -110,8 +110,8 @@ int main(int argc, char *argv[])
                 cout<<"Message was sent..."<<endl;
                 message_storage.push_back(packet_to_send);
             }
-            break;
         }
+        break;
         case 'G':
         {
             Packet packet_to_send(++seq_num, 'G', argv[2], "", "");
@@ -149,8 +149,8 @@ int main(int argc, char *argv[])
                     }
                 }while(current_packet->GetMessageType() != 'D');
             }
-            break;
         }
+        break;
         }
 
 
