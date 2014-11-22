@@ -134,6 +134,7 @@ int main(int argc, char *argv[])
                 cout << "Get in Progress" << endl;
                 do
                 {
+                    bzero(buffer, MAX_BUFFER_SIZE);
                     receive_error_check = recvfrom( socket_descriptor, buffer, 256, 0,
                                                     (struct sockaddr *)&server_address,
                                                     &server_length);
@@ -144,9 +145,9 @@ int main(int argc, char *argv[])
                     }
                     else
                     {
-                        cout<<"The following message was received: "<<endl;
+                        cout << "The following message was received: " << endl;
                         Packet packet_received(buffer);
-                        cout << packet_received.GetMessage();
+                        cout << packet_received.GetMessage() << endl;
                         current_packet = &packet_received;
                     }
                 }while(current_packet->GetMessageType() != 'D');
