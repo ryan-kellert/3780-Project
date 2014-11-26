@@ -1,6 +1,7 @@
 #ifndef PACKET_H
 #define PACKET_H
 #include <string>
+#include <netdb.h>
 
 
 class Packet
@@ -14,6 +15,8 @@ class Packet
         std::string GetSourceName();
         std::string GetDestinationName();
         std::string GetMessage();
+        bool Send(int socket, sockaddr_in server_address);
+        static Packet Receive(int socket, sockaddr_in server_address);
     protected:
     private:
         unsigned seq_num; //Sequence number of the packet

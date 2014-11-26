@@ -1,5 +1,8 @@
 #include "Packet.h"
+#include <stdexcept>
 #include <bitset>
+#include <cstring>
+#include <iostream>
 
 Packet::Packet(unsigned seq_number, char message_type, std::string src_name, std::string dest_name, std::string message)
             : seq_num{seq_number}, message_type{message_type}, src_name{src_name}, dest_name{dest_name}, message{message}
@@ -26,11 +29,19 @@ Packet::Packet(const char* packet_string)
 const char* Packet::GetPacketString()
 {
     std::string packet_string;
-    packet_string += std::bitset<8>(this->seq_num).to_string(); //Convert seq_num to 8-bit binary string for transmission
+
+    //Convert seq_num to 8-bit binary string for transmission
+    packet_string += std::bitset<8>(this->seq_num).to_string();
     packet_string += this->message_type;
     packet_string += this->src_name;
     packet_string += this->dest_name;
     packet_string += this->message;
+
+    if(packet_string.length() > 1500)
+    {
+        throw std::runtime_error("Message is too large. Maximum size is 1482 bytes.\n");
+    }
+
     return packet_string.c_str();
 }
 
@@ -57,4 +68,34 @@ std::string Packet::GetDestinationName()
 std::string Packet::GetMessage()
 {
     return this->message;
+}
+
+bool Packet::Send(int socket, sockaddr_in server_address)
+{
+    int num_sent_chars = sendto(socket,
+                                this->GetPacketString(),
+                                strlen(this->GetPacketString()),
+                                0,
+                                (struct sockaddr *)&server_address,
+                                sizeof(server_address));
+    return num_sent_chars < 0 ? false : true;
+}
+
+Packet Packet::Receive(int socket, sockaddr_in server_address)
+{
+    char message_buffer[1500];
+    bzero(message_buffer, 1500);
+    unsigned server_length = sizeof(server_address);
+    int num_bytes_received = recvfrom( socket,
+                                      message_buffer,
+                                      1500,
+                                      0,
+                                      (struct sockaddr *)&server_address,
+                                      &server_length);
+    if(num_bytes_received < 0)
+    {
+        throw std::runtime_error("Receive failed.");
+    }
+    Packet received_packet(message_buffer);
+    return received_packet;
 }
