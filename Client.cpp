@@ -20,7 +20,8 @@
 using namespace std;
 
 unsigned seq_num = 0;
-vector<Packet> message_storage;
+vector<Packet> sent_messages;
+vector<Packet> received_messages;
 
 int main(int argc, char *argv[])
 {
@@ -110,12 +111,13 @@ int main(int argc, char *argv[])
             else
             {
                 cout << "Message was sent..." << endl;
-                message_storage.push_back(packet_to_send);
+                sent_messages.push_back(packet_to_send);
             }
         }
         break;
         case 'G':
         {
+            static unsigned last_seq_num;
             Packet packet_to_send(++seq_num, 'G', argv[2], "     ", " ");
             strcpy(buffer, packet_to_send.GetPacketString());
 
@@ -145,11 +147,30 @@ int main(int argc, char *argv[])
                     }
                     else
                     {
-                        cout << "The following message was received: " << endl;
                         Packet packet_received(buffer);
-                        cout << packet_received.GetMessage() << endl;
+                        received_messages.push_back(packet_received);
+
+                        for(unsigned i = 0; i < packet_received.size(); i++)
+                        {
+                            if(packet_received.GetSequenceNumber() > last_seq_num);
+                            {
+                                cout << packet_received.GetMessage() << endl;
+                                break;
+                            }
+                            if(received_messages[i].GetSequenceNumber() == packet_received.GetSequenceNumber())
+                            {
+
+                            }
+                        }
+                        cout << "The following message was received: " << endl;
+
+                        Packet ACK(++seq_num, 'A', argv[2], packet_received.GetSourceName(), itoa(packet_received.GetSequenceNumber());
                         current_packet = &packet_received;
+                        send_error_check= sendto( socket_descriptor, ACK.GetPacketString(), MAX_BUFFER_SIZE, 0,
+                                      (struct sockaddr *)&server_address,
+                                      server_length);
                     }
+
                 }while(current_packet->GetMessageType() != 'D');
             }
         }

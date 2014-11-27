@@ -17,10 +17,11 @@ class Packet
         std::string GetMessage();
         bool Send(int socket, sockaddr_in server_address);
         static Packet Receive(int socket, sockaddr_in server_address);
+        struct sockaddr_in from_address;
+        socklen_t from_length;
     protected:
     private:
-        unsigned seq_num; //Sequence number of the packet
-        //std::string s = std::bitset< 64 >( 12345 ).to_string();
+        unsigned seq_num;
         char message_type;
         std::string src_name;
         std::string dest_name;

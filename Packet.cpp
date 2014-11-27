@@ -81,21 +81,25 @@ bool Packet::Send(int socket, sockaddr_in server_address)
     return num_sent_chars < 0 ? false : true;
 }
 
-Packet Packet::Receive(int socket, sockaddr_in server_address)
+Packet Packet::Receive(int socket, sockaddr_in from_address)
 {
     char message_buffer[1500];
     bzero(message_buffer, 1500);
-    unsigned server_length = sizeof(server_address);
+    socklen_t from_length = sizeof(from_address);
     int num_bytes_received = recvfrom( socket,
                                       message_buffer,
                                       1500,
                                       0,
-                                      (struct sockaddr *)&server_address,
-                                      &server_length);
+                                      (struct sockaddr *)&from_address,
+                                      &from_length);
     if(num_bytes_received < 0)
     {
         throw std::runtime_error("Receive failed.");
     }
+
     Packet received_packet(message_buffer);
+    received_packet.from_address = from_address;
+    received_packet.from_length = from_length;
+
     return received_packet;
 }
