@@ -23,10 +23,10 @@ Server self, left_server, right_server;
 
 std::vector<Route> routing_table;
 
-void DVR();
-void DVR_Receive(int socket, sockaddr_in server_address);
-void DVR_Send(int socket, sockaddr_in server_address);
+void DVR_Receive();
+void DVR_Send();
 void DVR_Client_Connected(std::string client_name);
+void DVR_Forward(Server forward_to, Packet message);
 
 int main(int argc, char *argv[])
 {
@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
     unsigned last_seq_num = 0; //Keep track of used sequence numbers.
 
     //Start up the Distance Vector Routing thread.
-    std::future<void> receive = std::async(std::launch::async, DVR);
+    std::future<void> receive = std::async(std::launch::async, DVR_Receive);
 
     //Wait for messages.
     while(true)
@@ -82,8 +82,11 @@ int main(int argc, char *argv[])
         Packet received_message = Packet::Receive(socket_descriptor, client_address);
         std::cout << "Message Received: " <<  received_message.GetMessage() << std::endl;
 
-        //Update Routing table.
-        DVR_Client_Connected(received_message.GetSourceName());
+        //Update Routing table if it was not a forwarded packet.
+        if(received_message.GetMessageType() != 'F')
+        {
+            DVR_Client_Connected(received_message.GetSourceName());
+        }
 
         //Handle different types of packets
         switch (received_message.GetMessageType())
@@ -102,9 +105,23 @@ int main(int argc, char *argv[])
             client_messages[received_message.GetDestinationName()].push_back(received_message);
         }
         break;
+        case 'F': //Forwarded Packet
         case 'S': //Send Packet
             ///Need to check if we have the destination client or hand it off.
-            client_messages[received_message.GetDestinationName()].push_back(received_message);
+            for(unsigned i = 0; i < routing_table.size(); i++)
+            {
+                if(routing_table[i].client_name == received_message.GetSourceName())
+                {
+                    if(routing_table[i].pass_to.id == self.id)
+                    {
+                        client_messages[received_message.GetDestinationName()].push_back(received_message);
+                    }
+                    else
+                    {
+                        DVR_Forward(routing_table[i].pass_to, received_message);
+                    }
+                }
+            }
             break;
         case 'G': //Get Packet
         {
@@ -130,11 +147,10 @@ int main(int argc, char *argv[])
             break;
         }
     }
+    close(socket_descriptor);
 }
 
-
-
-void DVR()
+void DVR_Receive()
 {
     //Creating the socket. Program exits if an error occurs.
     int socket_descriptor = socket(AF_INET, SOCK_DGRAM, 0);
@@ -157,15 +173,10 @@ void DVR()
         exit(1);
     }
 
-    std::future<void> receive = std::async(std::launch::async, DVR_Receive, socket_descriptor, server_address);
 
-}
-
-void DVR_Receive(int socket, sockaddr_in server_address)
-{
     while (true)
     {
-        RoutePacket packet_received = RoutePacket::Receive(socket, server_address);
+        RoutePacket packet_received = RoutePacket::Receive(socket_descriptor, server_address);
         for(unsigned i = 0; i < packet_received.routing_table.size(); i++)
         {
             unsigned j;
@@ -208,7 +219,9 @@ void DVR_Receive(int socket, sockaddr_in server_address)
                 }
             }
         }
+        DVR_Send();
     }
+    close(socket_descriptor);
 }
 
 void DVR_Send()
@@ -240,6 +253,7 @@ void DVR_Send()
 
     RoutePacket packet_to_right(self, right_server, routing_table);
     packet_to_right.Send(socket_descriptor, server_address);
+    close(socket_descriptor);
 }
 
 void DVR_Client_Connected(std::string client_name)
@@ -263,4 +277,27 @@ void DVR_Client_Connected(std::string client_name)
         new_client.pass_to = self;
     }
     DVR_Send();
+}
+
+void DVR_Forward(Server forward_to, Packet message)
+{
+    //Set up send parameters
+    struct hostent* host_ptr;
+    int socket_descriptor = socket(AF_INET, SOCK_DGRAM, 0);
+    if (socket_descriptor < 0)
+    {
+        std::cerr << "Error creating the socket.\n";
+        exit(1);
+    }
+    struct sockaddr_in server_address;
+    server_address.sin_family = AF_INET;
+    server_address.sin_port = htons(3500);
+
+    //Send update to server on logical left
+    host_ptr = gethostbyname(forward_to.ip_addr.c_str());
+    bcopy((char *)host_ptr->h_addr,
+          (char *)&server_address.sin_addr, host_ptr->h_length);
+
+    message.SetMessageType('F');
+    message.Send(socket_descriptor, server_address);
 }

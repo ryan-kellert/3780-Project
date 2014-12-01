@@ -1,6 +1,6 @@
 OBJS = Host.o Server.o Packet.o Route.o RoutePacket.o
 OBJS2= Client.o Packet.o
-CC = clang++
+CC = g++11
 CFLAGS= -Wall -g -std=c++11 -pthread
 
 all: Server Client

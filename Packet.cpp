@@ -55,6 +55,11 @@ char Packet::GetMessageType()
     return this->message_type;
 }
 
+void Packet::SetMessageType(char message_type)
+{
+    this->message_type = message_type;
+}
+
 std::string Packet::GetSourceName()
 {
     return this->src_name;

@@ -12,6 +12,7 @@ class Packet
         const char* GetPacketString();
         unsigned GetSequenceNumber();
         char GetMessageType();
+        void SetMessageType(char message_type);
         std::string GetSourceName();
         std::string GetDestinationName();
         std::string GetMessage();

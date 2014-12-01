@@ -132,4 +132,5 @@ int main(int argc, char *argv[])
         }
     }
     while(action != 'Q');
+    close(socket_descriptor);
 }
