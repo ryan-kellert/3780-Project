@@ -80,10 +80,10 @@ int main(int argc, char *argv[])
     {
         std::cout << "Waiting for Messages\n";
         Packet received_message = Packet::Receive(socket_descriptor, client_address);
-        std::cout << "Message Received: " <<  received_message.GetMessage() << std::endl;
+        std::cout << "Message Received: " <<  received_message.GetMessage() << "of type " << received_message.GetMessageType() << std::endl;
 
         //Update Routing table if it was not a forwarded packet.
-        if(received_message.GetMessageType() != 'F')
+        if(true)//received_message.GetMessageType() != 'F')
         {
             DVR_Client_Connected(received_message.GetSourceName());
         }
@@ -107,7 +107,6 @@ int main(int argc, char *argv[])
         break;
         case 'F': //Forwarded Packet
         case 'S': //Send Packet
-            ///Need to check if we have the destination client or hand it off.
             for(unsigned i = 0; i < routing_table.size(); i++)
             {
                 if(routing_table[i].client_name == received_message.GetSourceName())
@@ -275,6 +274,7 @@ void DVR_Client_Connected(std::string client_name)
         new_client.client_name = client_name;
         new_client.hop_count = 0;
         new_client.pass_to = self;
+        routing_table.push_back(new_client);
     }
     DVR_Send();
 }
