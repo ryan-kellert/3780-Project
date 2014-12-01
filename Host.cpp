@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
         std::cout << "Message Received: " <<  received_message.GetMessage() << "of type " << received_message.GetMessageType() << std::endl;
 
         //Update Routing table if it was not a forwarded packet.
-        if(true)//received_message.GetMessageType() != 'F')
+        if(received_message.GetMessageType() != 'F')
         {
             DVR_Client_Connected(received_message.GetSourceName());
         }
@@ -130,10 +130,10 @@ int main(int argc, char *argv[])
 
                 //If we are sending an ACK packet then we don't expect an ACK
                 //for the ACK so just discard it right away.
-                if(client_messages[received_message.GetSourceName()][i].GetMessageType() == 'A')
+                /*if(client_messages[received_message.GetSourceName()][i].GetMessageType() == 'A')
                 {
                     client_messages[received_message.GetSourceName()].erase(client_messages[received_message.GetSourceName()].begin()+i);
-                }
+                }*/
             }
 
             //Send a notice that we are done sending messages so the client doesn't get stuck in receive mode.
