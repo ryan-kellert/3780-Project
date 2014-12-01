@@ -108,7 +108,6 @@ int main(int argc, char *argv[])
                     else if(received_packet.GetMessageType() == 'A')
                     {
                         std::cout << "Acknowledgement received for sequence number " << received_packet.GetMessage() << std::endl;
-                        //ummm...do something with an ACK?
                     }
                     else
                     {

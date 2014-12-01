@@ -20,6 +20,7 @@ class Packet
         struct sockaddr_in from_address;
         socklen_t from_length;
     protected:
+        Packet(); //Only to be used by child classes to bypass creation requirements.
     private:
         unsigned seq_num;
         char message_type;

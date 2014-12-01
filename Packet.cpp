@@ -4,6 +4,11 @@
 #include <cstring>
 #include <iostream>
 
+Packet::Packet()
+{
+
+}
+
 Packet::Packet(unsigned seq_number, char message_type, std::string src_name, std::string dest_name, std::string message)
             : seq_num{seq_number}, message_type{message_type}, src_name{src_name}, dest_name{dest_name}, message{message}
 {
@@ -36,11 +41,6 @@ const char* Packet::GetPacketString()
     packet_string += this->src_name;
     packet_string += this->dest_name;
     packet_string += this->message;
-
-    if(packet_string.length() > 1500)
-    {
-        throw std::runtime_error("Message is too large. Maximum size is 1482 bytes.\n");
-    }
 
     return packet_string.c_str();
 }
