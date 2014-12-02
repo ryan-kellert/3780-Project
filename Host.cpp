@@ -176,6 +176,7 @@ void DVR_Receive()
     while (true)
     {
         RoutePacket packet_received = RoutePacket::Receive(socket_descriptor, server_address);
+        sleep(rand() & 10);
         for(unsigned i = 0; i < packet_received.routing_table.size(); i++)
         {
             unsigned j;
