@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
         case 'S': //Send Packet
             for(unsigned i = 0; i < routing_table.size(); i++)
             {
-                if(routing_table[i].client_name == received_message.GetSourceName())
+                if(routing_table[i].client_name == received_message.GetDestinationName())
                 {
                     if(routing_table[i].pass_to.id == self.id)
                     {
