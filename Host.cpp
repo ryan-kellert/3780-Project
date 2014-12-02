@@ -177,7 +177,6 @@ void DVR_Receive()
     {
         RoutePacket packet_received = RoutePacket::Receive(socket_descriptor, server_address);
         sleep(rand() & 10);
-        std::cout << "ROUTE TABLE SIZE BITCHES: " << packet_received.routing_table.size() << std::endl;
         for(unsigned i = 0; i < packet_received.routing_table.size(); i++)
         {
             unsigned j;
@@ -189,7 +188,6 @@ void DVR_Receive()
                     //Only update if the new hop count is less than the path we already know.
                     if((packet_received.routing_table[i].hop_count + 1) < routing_table[j].hop_count)
                     {
-                        std::cout << "New Client should be added.\n";
                         routing_table[j].hop_count = packet_received.routing_table[i].hop_count + 1;
                         //Update entry with which server to pass it through.
                         if(packet_received.src_id == left_server.id)
@@ -206,7 +204,6 @@ void DVR_Receive()
             }
             //If we didn't find an entry then j will be equal to the size of our routing table.
             //The new client and related information is added to our routing table.
-            std::cout << "J is " << j << std::endl;
             if(j == routing_table.size())
             {
                 Route new_client;
@@ -226,7 +223,9 @@ void DVR_Receive()
         std::cout << "Routing Table Updated!! New Client List:\n\n";
         for (unsigned i = 0; i < routing_table.size(); i++)
         {
-            std::cout << routing_table[i].client_name << routing_table[i].pass_to.ip_addr << std::endl;
+            std::cout << "Client name: " << routing_table[i].client_name << std::endl
+                      << "Pass to IP: " << routing_table[i].pass_to.ip_addr << std::endl
+                      << "Hop Count: " << routing_table[i].hop_count << std::endl << std::endl;
         }
         DVR_Send();
     }
