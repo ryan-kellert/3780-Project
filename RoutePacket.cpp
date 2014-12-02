@@ -5,9 +5,10 @@
 #include <iostream>
 
 
-RoutePacket::RoutePacket(Server source, Server destination, std::vector<Route> routing_table)
+RoutePacket::RoutePacket(Server source, std::vector<Route> routing_table)
 {
-
+    this->src_id = source.id;
+    this->routing_table = routing_table;
 }
 
 RoutePacket::RoutePacket(const char* route_packet_string)

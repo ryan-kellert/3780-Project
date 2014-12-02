@@ -249,7 +249,7 @@ void DVR_Send()
     bcopy((char *)host_ptr->h_addr,
           (char *)&server_address.sin_addr, host_ptr->h_length);
 
-    RoutePacket packet_to_left(self, left_server, routing_table);
+    RoutePacket packet_to_left(self, routing_table);
     packet_to_left.Send(socket_descriptor, server_address);
 
     //Send update to server on logical right
@@ -257,7 +257,7 @@ void DVR_Send()
     bcopy((char *)host_ptr->h_addr,
           (char *)&server_address.sin_addr, host_ptr->h_length);
 
-    RoutePacket packet_to_right(self, right_server, routing_table);
+    RoutePacket packet_to_right(self, routing_table);
     packet_to_right.Send(socket_descriptor, server_address);
     close(socket_descriptor);
 }
