@@ -33,6 +33,8 @@ Packet::Packet(const char* packet_string)
 
 const char* Packet::GetPacketString()
 {
+    std::cout << "I'm in the WRONG function.\n";
+
     std::string packet_string;
 
     //Convert seq_num to 8-bit binary string for transmission
