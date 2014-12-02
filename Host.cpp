@@ -22,11 +22,14 @@
 Server self, left_server, right_server;
 
 std::vector<Route> routing_table;
+//Storage for messages until clients request them.
+std::map<std::string,std::vector<Packet>> client_messages;
 
 void DVR_Receive();
 void DVR_Send();
 void DVR_Client_Connected(std::string client_name);
 void DVR_Forward(Server forward_to, Packet message);
+void DVR_CheckForwards();
 
 int main(int argc, char *argv[])
 {
@@ -44,9 +47,6 @@ int main(int argc, char *argv[])
     right_server.id = atoi(argv[4]);
     right_server.ip_addr.assign(argv[5]);
 
-
-    //Storage for messages until clients request them.
-    std::map<std::string,std::vector<Packet>> client_messages;
 
     //Creating the socket. Program exits if an error occurs.
     int socket_descriptor = socket(AF_INET, SOCK_DGRAM, 0);
@@ -309,4 +309,19 @@ void DVR_Forward(Server forward_to, Packet message)
 
     message.SetMessageType('F');
     message.Send(socket_descriptor, server_address);
+}
+
+void DVR_CheckForwards()
+{
+    for(unsigned i = 0; i < routing_table.size(); i++)
+    {
+        if(routing_table[i].pass_to.id != self.id)
+        {
+            for(unsigned j = 0; j < client_messages[routing_table[i].client_name].size(); j++)
+            {
+                DVR_Forward(routing_table[i].pass_to, client_messages[routing_table[i].client_name][j]);
+            }
+            client_messages.erase(routing_table[i].client_name);
+        }
+    }
 }
