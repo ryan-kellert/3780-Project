@@ -9,7 +9,7 @@ class Packet
     public:
         Packet(unsigned seq_number, char message_type, std::string src_name, std::string dest_name, std::string message);
         Packet(const char* packet_string);
-        const char* GetPacketString();
+        virtual const char* GetPacketString();
         unsigned GetSequenceNumber();
         char GetMessageType();
         void SetMessageType(char message_type);

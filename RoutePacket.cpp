@@ -14,7 +14,6 @@ RoutePacket::RoutePacket(Server source, std::vector<Route> routing_table)
 RoutePacket::RoutePacket(const char* route_packet_string)
 {
     std::string packet (route_packet_string);
-    std::cout << "Received Packet String " << packet << std::endl;
     this->src_id = std::stoul(packet.substr(0, 1));
 
     //Each client hop sequence is 6 in length
@@ -43,9 +42,6 @@ const char* RoutePacket::GetPacketString()
         packet_string += this->routing_table[i].client_name;
         packet_string += std::to_string(this->routing_table[i].hop_count);
     }
-
-    std::cout << "GetPacketString: " << packet_string << std::endl
-              << "src_id: " << this->src_id << std::endl;
 
     return packet_string.c_str();
 }
