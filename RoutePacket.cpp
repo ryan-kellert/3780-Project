@@ -18,7 +18,7 @@ RoutePacket::RoutePacket(const char* route_packet_string)
 
     std::cout << "Packet Length is " << packet.length() << std::endl;
     //Each client hop sequence is 6 in length
-    for(unsigned i = 1; (i + 6) < packet.length(); i += 6)
+    for(unsigned i = 1; (i + 5) < packet.length(); i += 6)
     {
         Route client;
         client.client_name = packet.substr(i, 5);
