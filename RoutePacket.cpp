@@ -44,6 +44,9 @@ const char* RoutePacket::GetPacketString()
         packet_string += std::to_string(this->routing_table[i].hop_count);
     }
 
+    std::cout << "GetPacketString: " << packet_string << std::endl
+              << "src_id: " << this->src_id << std::endl;
+
     return packet_string.c_str();
 }
 

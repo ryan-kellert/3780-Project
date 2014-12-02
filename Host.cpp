@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
     {
         std::cout << "Waiting for Messages\n";
         Packet received_message = Packet::Receive(socket_descriptor, client_address);
-        std::cout << "Message Received: " <<  received_message.GetMessage() << "of type " << received_message.GetMessageType() << std::endl;
+        std::cout << "Message Received: " <<  received_message.GetMessage() << " of type " << received_message.GetMessageType() << std::endl;
 
         //Update Routing table if it was not a forwarded packet.
         if(received_message.GetMessageType() != 'F')
