@@ -188,6 +188,7 @@ void DVR_Receive()
                     //Only update if the new hop count is less than the path we already know.
                     if((packet_received.routing_table[i].hop_count + 1) < routing_table[j].hop_count)
                     {
+                        std::cout << "New Client should be added.\n";
                         routing_table[j].hop_count = packet_received.routing_table[i].hop_count + 1;
                         //Update entry with which server to pass it through.
                         if(packet_received.src_id == left_server.id)
@@ -204,6 +205,7 @@ void DVR_Receive()
             }
             //If we didn't find an entry then j will be equal to the size of our routing table.
             //The new client and related information is added to our routing table.
+            std::cout << "J is " << j << std::endl;
             if(j == routing_table.size())
             {
                 Route new_client;
