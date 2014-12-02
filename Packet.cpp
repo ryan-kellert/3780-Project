@@ -84,6 +84,7 @@ bool Packet::Send(int socket, sockaddr_in server_address)
                                 (struct sockaddr *)&server_address,
                                 sizeof(server_address));
     return num_sent_chars < 0 ? false : true;
+    std::cout << "Sent String: " << this->GetPacketString() << std::endl;
 }
 
 Packet Packet::Receive(int socket, sockaddr_in from_address)
