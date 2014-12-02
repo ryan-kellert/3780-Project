@@ -10,7 +10,7 @@
 class RoutePacket : public Packet
 {
     public:
-        RoutePacket(Server source, Server destination, std::vector<Route> routing_table);
+        RoutePacket(Server source, std::vector<Route> routing_table);
         RoutePacket(const char* route_packet_string);
         ~RoutePacket();
         const char* GetPacketString();
