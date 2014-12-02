@@ -192,11 +192,11 @@ void DVR_Receive()
                         //Update entry with which server to pass it through.
                         if(packet_received.src_id == left_server.id)
                         {
-                            routing_table[j].pass_to = left_server;
+                            routing_table[j].pass_to = right_server;
                         }
                         else
                         {
-                            routing_table[j].pass_to = right_server;
+                            routing_table[j].pass_to = left_server;
                         }
                     }
                     break; //Leave the inner loop after the entry is found.
