@@ -208,7 +208,7 @@ void DVR_Receive()
             {
                 Route new_client;
                 new_client.client_name = packet_received.routing_table[i].client_name;
-                new_client.hop_count = packet_received.routing_table[i].hop_count;
+                new_client.hop_count = packet_received.routing_table[i].hop_count + 1;
                 if(packet_received.src_id == left_server.id)
                 {
                     new_client.pass_to = left_server;
