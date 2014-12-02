@@ -177,6 +177,7 @@ void DVR_Receive()
     {
         RoutePacket packet_received = RoutePacket::Receive(socket_descriptor, server_address);
         sleep(rand() & 10);
+        std::cout << "ROUTE TABLE SIZE BITCHES: " << packet_received.routing_table.size() << std::endl;
         for(unsigned i = 0; i < packet_received.routing_table.size(); i++)
         {
             unsigned j;
