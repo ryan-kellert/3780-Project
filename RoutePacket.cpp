@@ -12,6 +12,7 @@ RoutePacket::RoutePacket(Server source, Server destination, std::vector<Route> r
 RoutePacket::RoutePacket(const char* route_packet_string)
 {
     std::string packet (route_packet_string);
+    std::cout << "Received Packet String " << packet << std::endl;
     this->src_id = std::stoul(packet.substr(0, 1));
 
     //Each client hop sequence is 6 in length
