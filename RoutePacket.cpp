@@ -2,6 +2,7 @@
 #include <string>
 #include <strings.h>
 #include <stdexcept>
+#include <iostream>
 
 
 RoutePacket::RoutePacket(Server source, Server destination, std::vector<Route> routing_table)
