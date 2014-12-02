@@ -218,6 +218,11 @@ void DVR_Receive()
                 }
             }
         }
+        std::cout << "Routing Table Updated!! New Client List:\n\n";
+        for (unsigned i = 0; i < routing_table.size(); i++)
+        {
+            std::cout << routing_table[i].client_name << routing_table[i].pass_to.ip_addr;
+        }
         DVR_Send();
     }
     close(socket_descriptor);
