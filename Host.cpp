@@ -217,12 +217,13 @@ void DVR_Receive()
                 {
                     new_client.pass_to = right_server;
                 }
+                routing_table.push_back(new_client);
             }
         }
         std::cout << "Routing Table Updated!! New Client List:\n\n";
         for (unsigned i = 0; i < routing_table.size(); i++)
         {
-            std::cout << routing_table[i].client_name << routing_table[i].pass_to.ip_addr;
+            std::cout << routing_table[i].client_name << routing_table[i].pass_to.ip_addr << std::endl;
         }
         DVR_Send();
     }
