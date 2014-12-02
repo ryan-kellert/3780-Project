@@ -228,6 +228,7 @@ void DVR_Receive()
                       << "Hop Count: " << routing_table[i].hop_count << std::endl << std::endl;
         }
         DVR_Send();
+        DVR_CheckForwards();
     }
     close(socket_descriptor);
 }
