@@ -22,6 +22,8 @@ RoutePacket::RoutePacket(const char* route_packet_string)
         Route client;
         client.client_name = packet.substr(i, 5);
         client.hop_count = std::stoul(packet.substr(i+5));
+        std::cout << "Client name is: " << client.client_name << std::endl
+                  << "Hop count is: " << client.hop_count << std::endl;
         this->routing_table.push_back(client);
     }
 }
